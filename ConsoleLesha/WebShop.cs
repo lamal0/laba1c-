@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConsoleLesha
 {
@@ -11,7 +12,51 @@ namespace ConsoleLesha
     {
         public static void Start(ProductAddingDelegate method)
         {
-            IUser user = new User("lesha", "lamal", "lamal0@kpi.ua");
+            using (WSContext db = new WSContext())
+            {
+                User user;
+                string temp;
+                do
+                {
+                    Console.Write("Enter your username(or 0 for new user):");
+                    temp = Console.ReadLine();
+                    Console.Clear();
+                } while (temp != "0" && !db.Users.Any(u => u.Username == temp));
+                if (temp == "0")
+                {
+                    user = new User();
+                    user.InitializeUser(db);
+                    db.Users.Add(user);
+                }
+                else
+                {
+                    user = db.Users.Include(u => u.Cart).Single(u => u.Username == temp);
+                }
+                while (true)
+                {
+                    MainMenu();
+                    switch (Choose())
+                    {
+                        case 0:
+                            do
+                            {
+                                Console.Clear();
+                                Cart(user);
+                            } while (CartManagement(user) != 0);
+                            break;
+                        case 1:
+                            do
+                            {
+                                CreationList();
+                            } while (ProdCreator(user) != 0);
+                            break;
+                        case 2:
+                            db.SaveChanges();
+                            return;
+                    }
+                }
+            }
+            /*User user = new User("lesha", "lamal", "lamal0@kpi.ua");
             while (true)
             {
                 MainMenu();
@@ -28,13 +73,13 @@ namespace ConsoleLesha
                         do
                         {
                             CreationList();
-                        } while (TaskCreator(user) != 0);
+                        } while (ProdCreator(user) != 0);
                         break;
                     case 2:
                         return;
                         
-                }
-            }
+                }*/
+
         }
         static void CreationList()
         {
@@ -45,7 +90,7 @@ namespace ConsoleLesha
                               "3.Add new ski to cart.\n" +
                               "4.Add new ski boot to cart.\n");
         }
-        static int TaskCreator(IUser user)
+        static int ProdCreator(User user)
         {
             if (uint.TryParse(Console.ReadKey(intercept: true).KeyChar.ToString(), out uint choose) && choose <= 6)
             {
@@ -53,11 +98,11 @@ namespace ConsoleLesha
                 {
                     return 0;
                 }
-                AddTask(user, choose);
+                AddProduct(user, choose);
             }
             return 1;
         }
-        static void AddTask(IUser user, uint choose)
+        static void AddProduct(User user, uint choose)
         {
             Console.Clear();
             Console.Write("Enter product color:");
@@ -152,7 +197,7 @@ namespace ConsoleLesha
                     return;
             }
         }
-        static int CartManagement(IUser user)
+        static int CartManagement(User user)
         {
             if (uint.TryParse(Console.ReadKey(intercept: true).KeyChar.ToString(), out uint choose) && choose <= user.Cart.Count)
             {
@@ -164,7 +209,7 @@ namespace ConsoleLesha
             }
             return 1;
         }
-        static void CartProductManagement(IUser user, IProduct product)
+        static void CartProductManagement(User user, Product product)
         {
             while (true)
             {
@@ -185,14 +230,14 @@ namespace ConsoleLesha
                 }
             }
         }
-        static void Cart(IUser user)
+        static void Cart(User user)
         {
             Console.WriteLine($"Developing: {user.Cart.Where(p => p.Status == Status.Developing).Count()} " +
                 $"/ NotStarted: {user.Cart.Where(p => p.Status == Status.NotStarted).Count()} " +
                 $"/ ReadyToShip: {user.Cart.Where(p => p.Status == Status.ReadyToShip).Count()}");
             Console.WriteLine("My cart:");
             Console.WriteLine("0.Return.");
-            foreach (IProduct product in user.Cart)
+            foreach (Product product in user.Cart)
             {
                 Console.WriteLine($"{user.Cart.IndexOf(product) + 1}.{product}");
             }

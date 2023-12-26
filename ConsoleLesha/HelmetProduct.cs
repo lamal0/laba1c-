@@ -7,10 +7,17 @@ using System.Threading.Tasks;
 
 namespace ConsoleLesha
 {
-    internal class HelmetProduct: Product, IHelmetProduct
+    enum Size
+    {
+        s,
+        m,
+        l
+    }
+
+    internal class HelmetProduct: Product
     {
         Size _size;
-        public Size Size { get { return _size; } }
+        public Size Size { get { return _size; } private set { _size = value; } }
         public HelmetProduct(string color, string description, DateTime started, DateTime finished, Size size) : base(color, description, started, finished)
         {
             _size = size;

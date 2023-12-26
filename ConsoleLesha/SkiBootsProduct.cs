@@ -8,12 +8,12 @@ using System.Xml.Linq;
 
 namespace ConsoleLesha
 {
-    internal class SkiBootsProduct : Product, ISkiBootsProduct
+    internal class SkiBootsProduct : Product
     {
         string _size;
         Type _type;
-        public string Size { get { return _size; } }
-        public Type Type { get { return _type; } }
+        public string Size { get { return _size; } private set { _size = value; } }
+        public Type Type { get { return _type; } private set { _type = value; } }
         public SkiBootsProduct(string color, string description, DateTime started, DateTime finished, string size, Type type) : base(color, description, started, finished)
         {
             _size = size;

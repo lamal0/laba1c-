@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace ConsoleLesha
 {
-    enum Status
+    public enum Status
     {
         ReadyToShip,
         Developing,
         NotStarted
     }
-    internal interface IProduct
+    public interface IProduct
     {
         DateTime Started { get; }
         DateTime Finished { get; }

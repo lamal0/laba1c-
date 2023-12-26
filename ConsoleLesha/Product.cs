@@ -1,23 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ConsoleLesha
 {
-    internal class Product : IProduct
+    internal class Product
     {
+        protected int _id;
         protected string _color;
         protected string _description;
         protected DateTime _started;
         protected DateTime _finished;
         protected Status _status;
-        public string Color { get { return _color; } }
-        public string Description { get { return _description; } }
-        public DateTime Started { get { return _started; } }
-        public DateTime Finished { get { return _finished; } }
-        public Status Status { get { return _status; } }
+        protected int _userId;
+        protected User _user;
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get { return _id; } private set { _id = value; } }
+
+        public int UserId { get { return _userId; } private set { _userId = value; } }
+        public User User { get { return _user; } private set { _user = value; } }
+
+        [Required]
+        public string Color { get { return _color; } private set { _color = value; } }
+        public string Description { get { return _description; } private set { _description = value; } }
+        public DateTime Started { get { return _started; } private set { _started = value; } }
+        public DateTime Finished { get { return _finished; } private set { _finished = value; } }
+        public Status Status { get { return _status; } private set { _status = value; } }
+
         public Product( string color, string description, DateTime started, DateTime finished)
         {
             _color = color;

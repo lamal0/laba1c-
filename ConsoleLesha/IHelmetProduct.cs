@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 namespace ConsoleLesha
 {
 
-    enum Size
+/*    enum Size
     {
         s,
         m,
         l
-    }
+    }*/
 
     internal interface IHelmetProduct:IProduct
     {

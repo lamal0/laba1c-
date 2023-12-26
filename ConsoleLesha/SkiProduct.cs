@@ -7,12 +7,12 @@ using System.Xml.Linq;
 
 namespace ConsoleLesha
 {
-    internal class SkiProduct : Product, ISkiProduct
+    internal class SkiProduct : Product
     {
         string _length;
         string _width;
-        public string Length { get { return _length; } }
-        public string Width { get { return _width; } }
+        public string Length { get { return _length; } private set { _length = value; } }
+        public string Width { get { return _width; } private set { _width = value; } }
         public SkiProduct( string color, string description, DateTime started, DateTime finished, string length, string width) : base(color, description, started, finished)
         {
             _length = length;
