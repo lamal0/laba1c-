@@ -7,7 +7,7 @@ using System.Xml.Linq;
 
 namespace ConsoleLesha
 {
-    internal class SkiProduct : Product
+    public class SkiProduct : Product
     {
         string _length;
         string _width;

@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace ConsoleLesha
 {
-    internal delegate void ProductAddingDelegate(Product product);
+    public delegate void ProductAddingDelegate(Product product);
 
-    internal class User
+    public class User
     {
         int _id;
         string _fullName;

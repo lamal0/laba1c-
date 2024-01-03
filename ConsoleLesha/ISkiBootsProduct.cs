@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ConsoleLesha
 {
-    enum Type
+    public enum Type
     {
         Senior,
         Junior,

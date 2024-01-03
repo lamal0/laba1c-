@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ConsoleLesha
 {
-    internal class SkiPoleProduct: Product
+    public class SkiPoleProduct: Product
     {
         string _length;
         string _weight;

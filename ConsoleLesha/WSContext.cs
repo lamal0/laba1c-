@@ -10,9 +10,10 @@ using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Text.Json;
 
+
 namespace ConsoleLesha
 {
-    internal class WSContext : DbContext
+    public class WSContext : DbContext
     {
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Product> Products { get; set; }
@@ -45,6 +46,16 @@ namespace ConsoleLesha
             jsonObject.Dispose();
         }
 
+/*        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            var builder = new ConfigurationBuilder();
+            builder.SetBasePath(Directory.GetCurrentDirectory());
+            builder.AddJsonFile("appsettings.json");
+            var config = builder.Build();
+            string connectionString = config.GetConnectionString("DefaultConnection");
+            optionsBuilder.UseLazyLoadingProxies().UseSqlServer(connectionString);
+        }*/
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Product>().UseTptMappingStrategy();
@@ -57,8 +68,15 @@ namespace ConsoleLesha
             modelBuilder.Entity<SkiBootsProduct>().ToTable("SkiBootsProduct");
             modelBuilder.Entity<SkiPoleProduct>().ToTable("SkiPoleProduct");
             modelBuilder.Entity<SkiProduct>().ToTable("SkiProduct");
+/*            modelBuilder.Entity<Product>()
+                        .HasDiscriminator<string>("Discriminator")
+                        .HasValue<SkiProduct>("SkiProduct")
+                        .HasValue<HelmetProduct>("HelmetProduct")
+                        .HasValue<SkiBootsProduct>("SkiBootsProduct")
+                        .HasValue<SkiPoleProduct>("SkiPoleProduct");*/
 
         }
+
 
     }
 }

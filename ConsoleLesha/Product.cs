@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ConsoleLesha
 {
-    internal class Product
+    public class Product
     {
         protected int _id;
         protected string _color;
@@ -26,10 +26,13 @@ namespace ConsoleLesha
 
         [Required]
         public string Color { get { return _color; } private set { _color = value; } }
-        public string Description { get { return _description; } private set { _description = value; } }
+        public string Description { get { return _description; } set { _description = value; } }
         public DateTime Started { get { return _started; } private set { _started = value; } }
         public DateTime Finished { get { return _finished; } private set { _finished = value; } }
         public Status Status { get { return _status; } private set { _status = value; } }
+/*
+        [Column("Discriminator")]
+        public string Discriminator { get; set; }*/
 
         public Product( string color, string description, DateTime started, DateTime finished)
         {

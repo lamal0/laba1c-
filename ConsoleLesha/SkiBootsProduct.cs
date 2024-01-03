@@ -8,7 +8,7 @@ using System.Xml.Linq;
 
 namespace ConsoleLesha
 {
-    internal class SkiBootsProduct : Product
+    public class SkiBootsProduct : Product
     {
         string _size;
         Type _type;
