@@ -31,124 +31,136 @@ namespace ConsoleLesha
     
     internal class Program
     {
-        static void Main(string[] args)
+        public static async Task Main()
         {
-            /*            using (WSContext db = new WSContext())
-                        {
-                            User user1 = new User("lesha", "lamal", "lesha@gmail.com");
-                            User user2 = new User("lesha2", "lamal2", "lesha2@gmail.com");
-                            db.Users.Add(user1);
-                            db.Users.Add(user2);
-                            Product product = new Product("asasasa", "ssss", DateTime.Now, DateTime.Now.AddHours(3));
-                            SkiProduct skiProduct = new SkiProduct("sdsds", "aaaa", DateTime.Now, DateTime.Now.AddHours(2), "qwewr", "rwqwq");
-                            SkiProduct skiProduct2 = new SkiProduct("xxxx", "cccccc", DateTime.Now.AddDays(-3), DateTime.Now, "qweqe", "qweqew");
-                            SkiBootsProduct skiBootsProduct = new SkiBootsProduct("1wer", "qwerty", DateTime.Now.AddDays(-3), DateTime.Now.AddDays(-1), "Qwwwww", Type.Middle);
-                            user1.AddProduct(product);
-                            user1.AddProduct(skiProduct);
-                            user1.AddProduct(skiProduct2);
-                            user2.AddProduct(product);
-                            user2.AddProduct(skiProduct);
-                            user2.AddProduct(skiBootsProduct);
-                            db.SaveChanges();
-                        }*/
-
             using (WSContext db = new WSContext())
             {
-                var union = db.Users.Include(u => u.Cart).First().Cart.Union(db.Users.Include(u => u.Cart).First(u => u.Id == 2).Cart);
-                foreach (var item in union)
+                //ThreadsFiller(db);
+                await TaskFiller(db);
+                Task task = ReadUsersAsync(db);
+                for (int i = 0; i < db.Users.Count(); i++)
                 {
-                    Console.WriteLine(item);
+                    await Console.Out.WriteLineAsync($"Remained {db.Users.Count() - i}");
+                    Thread.Sleep(1000);
                 }
-                Console.WriteLine("---------");
-
-                var except = db.Users.Include(u => u.Cart).First().Cart.Except(db.Users.Include(u => u.Cart).First(u => u.Id == 2).Cart);
-                foreach (var item in except)
-                {
-                    Console.WriteLine(item);
-                }
-                Console.WriteLine("---------");
-
-                var intersect = db.Users.Include(u => u.Cart).First().Cart.Intersect(db.Users.Include(u => u.Cart).First(u => u.Id == 2).Cart);
-                foreach (var item in intersect)
-                {
-                    Console.WriteLine(item);
-                }
-                Console.WriteLine("---------");
-
-                var join = from u1 in db.Users.Include(u => u.Cart).First().Cart
-                           join u2 in db.Users.Include(u => u.Cart).First(u => u.Id == 2).Cart on u1.Started equals u2.Started
-                           select new { u1.Description, u2.Status };
-                foreach (var item in join)
-                {
-                    Console.WriteLine(item.Description + item.Status);
-                }
-                Console.WriteLine("---------");
-
-                var distinct = db.Products.Select(t => t.Description).Distinct();
-                foreach (var item in intersect)
-                {
-                    Console.WriteLine(item);
-                }
-                Console.WriteLine("---------");
-
-                var groupby = from item in db.Products
-                              group item by item.User into grouped
-                              select new { User = grouped.Key, Count = grouped.Count() };
-                foreach (var item in groupby)
-                {
-                    Console.WriteLine(item.User.Username + " - " + item.Count);
-                }
-                Console.WriteLine("---------");
-
-                Console.WriteLine("Total tasks count" + db.Products.Count());
-                Console.WriteLine("---------22");
-
-/*                var parameter = new SqlParameter("@Type", "SkiProduct");
-                var result = db.Products.FromSqlRaw("EXEC getProductsColors").ToList();
-
-
-                foreach (var item in result)
-                {
-                    Console.WriteLine(item);
-                }
-                Console.WriteLine("---------1111");*/
-
-                var notrack = db.Products.AsNoTracking().First();
-                Console.WriteLine(notrack);
-                notrack.Description = "Changed";
-                Console.WriteLine(notrack);
-                db.SaveChanges();
-                foreach (var item in db.Products)
-                {
-                    Console.WriteLine(item);
-                }
-                Console.WriteLine("---------");
+                Task.WaitAll(task);
             }
-            using (WSContext db = new WSContext())
-            {
-                //eager
-                var prod = db.Products.Include(s => s.User).First(s => s.Color == "sdsds");
-                Console.WriteLine("Username of a task owner: " + prod.User.Username);
-
-                //explicit
-                var user = db.Users.First(u => u.Id == 1);
-                db.Products.Where(t => t.UserId == 1).Load();
-                Console.WriteLine("Task of user" + user.Cart.First());
-            }
-            //lazy
-            using (WSContext db = new WSContext())
-            {
-                var ft = db.Users.First();
-                Console.WriteLine("First:" + ft.Email);
-            }
-
-
-            //WebShop.Start(OutterMethod);
         }
-        static void OutterMethod(Product product)
+        static void ThreadsFiller(WSContext db)
         {
-            Console.Clear();
-            Console.WriteLine($"New product added to your cart! it will be ready: {product.Finished}");
+            int variable = 0;
+            int[] blocker = new int[1];
+            List<Thread> threads = new List<Thread>()
+            {
+                new Thread(() =>
+                {
+                    for(int i = 0; i < 3; i++)
+                    {
+                        lock(blocker)
+                        {
+                            db.Users.Add(new User($"Thread1Name{variable}",$"Username{variable}",$"mail{variable}@email.com"));
+                            variable++;
+                        }
+                    }
+                }),
+                new Thread(() =>
+                {
+                    for(int i = 0; i < 3; i++)
+                    {
+                        lock(blocker)
+                        {
+                            db.Users.Add(new User($"Thread2Name{variable}",$"Username{variable}",$"mail{variable}@email.com"));
+                            variable++;
+                        }
+                    }
+                }),
+                new Thread(() =>
+                {
+                    for(int i = 0; i < 3; i++)
+                    {
+                        lock(blocker)
+                        {
+                            db.Users.Add(new User($"Thread3Name{variable}",$"Username{variable}",$"mail{variable}@email.com"));
+                            variable++;
+                        }
+                    }
+                })
+            };
+            foreach (Thread t in threads)
+            {
+                t.Start();
+            }
+            foreach (Thread t in threads)
+            {
+                t.Join();
+            }
+            db.SaveChanges();
+        }
+        static async Task TaskFiller(WSContext db)
+        {
+            //int[] blocker = new int[1];
+            object blocker = new object();
+            int variable = 0;
+            var tasks = new Task[3];
+
+            Func<Task> firstTask = async () =>
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    User user = new User();
+                    lock (blocker)
+                    {
+                        user = new User($"Full1Name{variable}", $"Username{variable}", $"mail{variable}@email.com");
+                        variable++;
+                    }
+                    await db.Users.AddAsync(user);
+                    await Console.Out.WriteLineAsync("User added in Task1");
+                }
+            };
+            Func<Task> secondTask = async () =>
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    User user = new User();
+                    lock (blocker)
+                    {
+                        user = new User($"Full2Name{variable}", $"Username{variable}", $"mail{variable}@email.com");
+                        variable++;
+                    }
+                    await db.Users.AddAsync(user);
+                    await Console.Out.WriteLineAsync("User added in Task2");
+                }
+            };
+            Func<Task> thirdTask = async () =>
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    User user = new User();
+                    lock (blocker)
+                    {
+                        user = new User($"Full3Name{variable}", $"Username{variable}", $"mail{variable}@email.com");
+                        variable++;
+                    }
+                    await db.Users.AddAsync(user);
+                    await Console.Out.WriteLineAsync("User added in Task3");
+                }
+            };
+            tasks[0] = firstTask();
+            tasks[1] = secondTask();
+            tasks[2] = thirdTask();
+
+            Task.WaitAll(tasks);
+
+            await db.SaveChangesAsync();
+        }
+        static async Task ReadUsersAsync(WSContext db)
+        {
+            var users = await db.Users.ToListAsync();
+            foreach (var u in users)
+            {
+                await Console.Out.WriteLineAsync(u.FullName);
+                Thread.Sleep(1000);
+            }
         }
     }
 }
